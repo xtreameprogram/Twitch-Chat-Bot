@@ -585,31 +585,3 @@ setTimeout(function() {
 End
 
 ******************************/
-
-//Deprecated:
-// function reloadConfig() {
-//   bot = null;
-//   try {
-//     mods = JSON.parse(fs.readFileSync('mod.json', 'utf8'));
-//     config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
-//   } catch (err) {
-//     console.log(err);
-//   }
-//    settings = {
-//     channels: botConf.channels,
-//     server: "irc.twitch.tv",
-//     username: botConf.bot.username,
-//     nick: botConf.bot.username,
-//     password: botConf.bot.password,
-//     sasl: true,
-//     orange: 'asd'
-//   };
-//
-//    rbot = new irc.Client(settings.server, settings.nick, {
-//     channels: [settings.channels + " " + settings.password],
-//     debug: true,
-//     password: settings.password,
-//     username: settings.nick
-//   });
-// message(rbot);
-// }
