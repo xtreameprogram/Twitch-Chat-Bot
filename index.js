@@ -80,7 +80,7 @@ fs.readFile('bot.json', "utf-8", function(err, data) {
 
 //********
 
-
+//Going to add more functionality here(Add webserver files here)
 
 /******************************
 
@@ -91,7 +91,6 @@ Define config files that are needed
 setTimeout(function() {
   var config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
   var botConf = JSON.parse(fs.readFileSync('bot.json', 'utf8'));
-
 
   /******************************
 
@@ -150,7 +149,7 @@ setTimeout(function() {
     extended: true
   }));
 
-    app.use(express.static(path.join(__dirname, 'public')));
+  app.use(express.static(path.join(__dirname, 'public')));
 
   app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -159,47 +158,48 @@ setTimeout(function() {
   });
 
 
-  app.get('/', function (req, res) {
-  res.send('Hello World!');
-});
+  app.get('/', function(req, res) {
+    res.send(200);
+  });
 
-app.listen(3000, function () {
-  console.log('Example app listening on port 3000!');
-});
-  // app.post('/', function(req, res) {
-  //   reloadConfig();
-  //   res.status(04).send("Hi!");
-  //   // console.log('test');
-  //   var command = req.body.command;
-  //   var channels = botConf.channels;
-  //   res.send('Recieved! Determining action now.');
-  //
-  //   if (command == 'reload') {
-  //     reloadConfig();
-  //   } else if (command == 'add') {
-  //     channels.push(req.body.person);
-  //     botConf.channels = channels;
-  //     // console.log(config.channels);
-  //     fs.writeFile('bot.json', JSON.stringify(botConf), function(err) {
-  //       if (err) return console.log(err);
-  //     });
-  //     reloadConfig();
-  //   } else if (command == 'remove') {
-  //     var bb = Array.prototype.slice.call(channels);
-  //     var index = bb.indexOf(req.body.person);
-  //     bb.splice(index, 1);
-  //     // res.send(channels);
-  //
-  //     // console.log(bb);
-  //     // console.log(Array.isArray(config.channels));
-  //     botConf.channels = bb;
-  //     fs.writeFile('bot.json', JSON.stringify(bb), function(err) {
-  //       if (err) return console.log(err);
-  //     });
-  //
-  //     reloadConfig();
-  //   }
-  // });
+  app.listen(3000, function() {
+    console.log('Example app listening on port 3000!');
+  });
+
+  app.post('/', function(req, res) {
+
+    var command = req.body.command;
+    var person;
+    var add = '';
+    // console.log(command);
+     if (command === 'reload') {
+       add = 'Reloading';
+       res.status(200).send('Recieved Command. Determining now.\n' + add);
+       process.exit(0);
+     } else if (command === 'add') {
+       person = req.body.person;
+       add = 'Adding ' + person;
+       botConf.channels.push('#' + getUser(person));
+
+       fs.writeFile('bot.json', JSON.stringify(botConf), function(err) {
+         if (err) return console.log(err);
+       });
+
+       res.status(200).send('Recieved Command. Determining now.\n' + add);
+       setTimeout(function() {process.exit(0);}, 2000);
+     } else if (command === 'remove') {
+       person = req.body.person;
+
+       botConf.channels.splice(botConf.channels.indexOf('#' + getUser(person)), 1);
+       add = 'Removeing ' + person;
+       fs.writeFile('bot.json', JSON.stringify(botConf), function(err) {
+         if (err) return console.log(err);
+       });
+       res.status(200).send('Recieved Command. Determining now.\n' + add);
+       setTimeout(function() {process.exit(0);}, 2000);
+     }
+
+  });
 
 
   /******************************
@@ -552,32 +552,32 @@ app.listen(3000, function () {
 
   ******************************/
 
-//   process.stdin.resume(); //so the program will not close instantly
-//
-//   function exitHandler(options, err) {
-//     if (options.cleanup) console.log('clean');
-//     if (err) console.log(err.stack);
-//     if (options.exit) process.exit();
-//     server.close();
-//   }
-//
-//   //do something when app is closing
-//   process.on('exit', exitHandler.bind(null, {
-//     cleanup: true
-//   }));
-//
-//   //catches ctrl+c event
-//   process.on('SIGINT', exitHandler.bind(null, {
-//     exit: true
-//   }));
-//
-//   //catches uncaught exceptions
-//   process.on('uncaughtException', exitHandler.bind(null, {
-//     exit: true
-//   }));
-//
-//   server.close();
-//
+  //   process.stdin.resume(); //so the program will not close instantly
+  //
+  //   function exitHandler(options, err) {
+  //     if (options.cleanup) console.log('clean');
+  //     if (err) console.log(err.stack);
+  //     if (options.exit) process.exit();
+  //     server.close();
+  //   }
+  //
+  //   //do something when app is closing
+  //   process.on('exit', exitHandler.bind(null, {
+  //     cleanup: true
+  //   }));
+  //
+  //   //catches ctrl+c event
+  //   process.on('SIGINT', exitHandler.bind(null, {
+  //     exit: true
+  //   }));
+  //
+  //   //catches uncaught exceptions
+  //   process.on('uncaughtException', exitHandler.bind(null, {
+  //     exit: true
+  //   }));
+  //
+  //   server.close();
+  //
 }, 1000);
 
 /******************************
