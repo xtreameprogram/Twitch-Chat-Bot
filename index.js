@@ -77,6 +77,11 @@ fs.readFile('bot.json', "utf-8", function(err, data) {
   }
 });
 
+
+//********
+
+
+
 /******************************
 
 Define config files that are needed
@@ -146,7 +151,6 @@ setTimeout(function() {
   }));
 
     app.use(express.static(path.join(__dirname, 'public')));
-
 
   app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
