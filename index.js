@@ -5,6 +5,7 @@ var readline = require("readline");
 var request = require("request");
 var express = require("express");
 var bodyParser = require('body-parser');
+var path = require('path');
 //Template
 /******************************
  ******************************/
@@ -143,7 +144,9 @@ setTimeout(function() {
   app.use(bodyParser.urlencoded({
     extended: true
   }));
-  var port = 8080;
+
+    app.use(express.static(path.join(__dirname, 'public')));
+
 
   app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -152,43 +155,47 @@ setTimeout(function() {
   });
 
 
-  var server = app.listen(port);
-  console.log('Server started! At http://localhost:' + port);
+  app.get('/', function (req, res) {
+  res.send('Hello World!');
+});
 
-  app.post('/', function(req, res) {
-    reloadConfig();
-    // res.status(04).send("Hi!");
-    // console.log('test');
-    var command = req.body.command;
-    var channels = botConf.channels;
-    res.send('Recieved! Determining action now.');
-
-    if (command == 'reload') {
-      reloadConfig();
-    } else if (command == 'add') {
-      channels.push(req.body.person);
-      botConf.channels = channels;
-      // console.log(config.channels);
-      fs.writeFile('bot.json', JSON.stringify(botConf), function(err) {
-        if (err) return console.log(err);
-      });
-      reloadConfig();
-    } else if (command == 'remove') {
-      var bb = Array.prototype.slice.call(channels);
-      var index = bb.indexOf(req.body.person);
-      bb.splice(index, 1);
-      // res.send(channels);
-
-      // console.log(bb);
-      // console.log(Array.isArray(config.channels));
-      botConf.channels = bb;
-      fs.writeFile('bot.json', JSON.stringify(bb), function(err) {
-        if (err) return console.log(err);
-      });
-
-      reloadConfig();
-    }
-  });
+app.listen(3000, function () {
+  console.log('Example app listening on port 3000!');
+});
+  // app.post('/', function(req, res) {
+  //   reloadConfig();
+  //   res.status(04).send("Hi!");
+  //   // console.log('test');
+  //   var command = req.body.command;
+  //   var channels = botConf.channels;
+  //   res.send('Recieved! Determining action now.');
+  //
+  //   if (command == 'reload') {
+  //     reloadConfig();
+  //   } else if (command == 'add') {
+  //     channels.push(req.body.person);
+  //     botConf.channels = channels;
+  //     // console.log(config.channels);
+  //     fs.writeFile('bot.json', JSON.stringify(botConf), function(err) {
+  //       if (err) return console.log(err);
+  //     });
+  //     reloadConfig();
+  //   } else if (command == 'remove') {
+  //     var bb = Array.prototype.slice.call(channels);
+  //     var index = bb.indexOf(req.body.person);
+  //     bb.splice(index, 1);
+  //     // res.send(channels);
+  //
+  //     // console.log(bb);
+  //     // console.log(Array.isArray(config.channels));
+  //     botConf.channels = bb;
+  //     fs.writeFile('bot.json', JSON.stringify(bb), function(err) {
+  //       if (err) return console.log(err);
+  //     });
+  //
+  //     reloadConfig();
+  //   }
+  // });
 
 
   /******************************
@@ -339,7 +346,7 @@ setTimeout(function() {
 
   /******************************
 
-  WIP: This funciton (if has customapi in it) will return the value of the response. Basically customapi handlers
+  This funciton (if has customapi in it) will return the value of the response. Basically customapi handlers
 
   ******************************/
 
@@ -347,7 +354,7 @@ setTimeout(function() {
     request(apiLink, function(error, response, body) {
       if (!error && response.statusCode == 200) {
         stringToSay = stringToSay.replace(/(\%customapi\s[\S]+\%)/, body);
-        if (stringToSay.length < 400) {
+        if (body.length < 400) {
           bot.say(to, stringToSay);
         } else {
           bot.say("Sorry, the link returns WAY too much data.");
@@ -541,32 +548,32 @@ setTimeout(function() {
 
   ******************************/
 
-  process.stdin.resume(); //so the program will not close instantly
-
-  function exitHandler(options, err) {
-    if (options.cleanup) console.log('clean');
-    if (err) console.log(err.stack);
-    if (options.exit) process.exit();
-    server.close();
-  }
-
-  //do something when app is closing
-  process.on('exit', exitHandler.bind(null, {
-    cleanup: true
-  }));
-
-  //catches ctrl+c event
-  process.on('SIGINT', exitHandler.bind(null, {
-    exit: true
-  }));
-
-  //catches uncaught exceptions
-  process.on('uncaughtException', exitHandler.bind(null, {
-    exit: true
-  }));
-
-  server.close();
-
+//   process.stdin.resume(); //so the program will not close instantly
+//
+//   function exitHandler(options, err) {
+//     if (options.cleanup) console.log('clean');
+//     if (err) console.log(err.stack);
+//     if (options.exit) process.exit();
+//     server.close();
+//   }
+//
+//   //do something when app is closing
+//   process.on('exit', exitHandler.bind(null, {
+//     cleanup: true
+//   }));
+//
+//   //catches ctrl+c event
+//   process.on('SIGINT', exitHandler.bind(null, {
+//     exit: true
+//   }));
+//
+//   //catches uncaught exceptions
+//   process.on('uncaughtException', exitHandler.bind(null, {
+//     exit: true
+//   }));
+//
+//   server.close();
+//
 }, 1000);
 
 /******************************
