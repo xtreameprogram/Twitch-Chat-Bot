@@ -80,6 +80,25 @@ fs.readFile('bot.json', "utf-8", function(err, data) {
 
 //********
 
+
+fs.readFile('chatModConf.json', "utf-8", function(err, data) {
+
+  if (err) {
+    fs.writeFile('chatModConf.json', '{}', function(err) {
+      if (err) return console.log(err);
+    });
+    console.log('Restart script after filing in required data in bot.json');
+    process.exit(0);
+  }
+  if (!data) {
+    fs.writeFile('chatModConf.json', '{}', function(err) {
+      if (err) return console.log(err);
+    });
+  }
+});
+
+//********
+
 //Going to add more functionality here(Add webserver files here)
 
 /******************************
@@ -91,6 +110,7 @@ Define config files that are needed
 setTimeout(function() {
   var config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
   var botConf = JSON.parse(fs.readFileSync('bot.json', 'utf8'));
+  var chatModConf = JSON.parse(fs.readFileSync('chatModConf.json', 'utf8'));
 
   /******************************
 
@@ -162,8 +182,9 @@ setTimeout(function() {
     res.send(200);
   });
 
+  var port = 3000;
   app.listen(3000, function() {
-    console.log('Example app listening on port 3000!');
+    console.log('Webserver running on port ' + port + '!');
   });
 
   app.post('/', function(req, res) {
@@ -172,32 +193,36 @@ setTimeout(function() {
     var person;
     var add = '';
     // console.log(command);
-     if (command === 'reload') {
-       add = 'Reloading';
-       res.status(200).send('Recieved Command. Determining now.\n' + add);
-       process.exit(0);
-     } else if (command === 'add') {
-       person = req.body.person;
-       add = 'Adding ' + person;
-       botConf.channels.push('#' + getUser(person));
+    if (command === 'reload') {
+      add = 'Reloading';
+      res.status(200).send('Recieved Command. Determining now.\n' + add);
+      process.exit(0);
+    } else if (command === 'add') {
+      person = req.body.person;
+      add = 'Adding ' + person;
+      botConf.channels.push('#' + getUser(person));
 
-       fs.writeFile('bot.json', JSON.stringify(botConf), function(err) {
-         if (err) return console.log(err);
-       });
+      fs.writeFile('bot.json', JSON.stringify(botConf), function(err) {
+        if (err) return console.log(err);
+      });
 
-       res.status(200).send('Recieved Command. Determining now.\n' + add);
-       setTimeout(function() {process.exit(0);}, 2000);
-     } else if (command === 'remove') {
-       person = req.body.person;
+      res.status(200).send('Recieved Command. Determining now.\n' + add);
+      setTimeout(function() {
+        process.exit(0);
+      }, 2000);
+    } else if (command === 'remove') {
+      person = req.body.person;
 
-       botConf.channels.splice(botConf.channels.indexOf('#' + getUser(person)), 1);
-       add = 'Removeing ' + person;
-       fs.writeFile('bot.json', JSON.stringify(botConf), function(err) {
-         if (err) return console.log(err);
-       });
-       res.status(200).send('Recieved Command. Determining now.\n' + add);
-       setTimeout(function() {process.exit(0);}, 2000);
-     }
+      botConf.channels.splice(botConf.channels.indexOf('#' + getUser(person)), 1);
+      add = 'Removeing ' + person;
+      fs.writeFile('bot.json', JSON.stringify(botConf), function(err) {
+        if (err) return console.log(err);
+      });
+      res.status(200).send('Recieved Command. Determining now.\n' + add);
+      setTimeout(function() {
+        process.exit(0);
+      }, 2000);
+    }
 
   });
 
@@ -369,6 +394,27 @@ setTimeout(function() {
 
   /******************************
 
+This function is going to check for banned words etc.
+
+  ******************************/
+
+  function filter(bot, from, to, text) {
+    fs.readFile("chatModConf.json", "utf-8", function(err, data) {
+      chatModConf = data;
+      try {
+        for (var i = 0; i <  chatModConf.bannedPhrases; i++) {
+          if (text.toLowerCase().search(chatModConf.bannedPhrases[i]) > -1) {
+            bot.say(to, "timeout " + from + " " + chatModConf.timeoutTime);
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    });
+  }
+
+  /******************************
+
   The main function, listens and logs chat, calls functions, and 90% of functionality comes from THIS function.
   Does the custom commands and calls the shots
 
@@ -376,6 +422,7 @@ setTimeout(function() {
 
   function message(bot) {
     bot.addListener("message", function(from, to, text) {
+      filter(bot, from, to, text);
       config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
       // console.log(settings.channels);
       getMods(to);
