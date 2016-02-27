@@ -182,8 +182,8 @@ setTimeout(function() {
     res.send(200);
   });
 
-  var port = 3000;
-  app.listen(3000, function() {
+  var port = 3001;
+  app.listen(port, function() {
     console.log('Webserver running on port ' + port + '!');
   });
 
