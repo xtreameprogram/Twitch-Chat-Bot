@@ -431,7 +431,7 @@ This function is going to check for banned words etc.
           bannedPhrases: [],
           banLinks: false
         };
-        fs.writeFile('chatModConf.json', chatModConf.stringify);
+        fs.writeFile('chatModConf.json', JSON.stringify(chatModConf));
         global.delay = 500;
       }
       setTimeout(function() {
